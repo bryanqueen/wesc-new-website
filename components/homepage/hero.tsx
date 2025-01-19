@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { ArrowRight } from 'lucide-react'
+import ProgramsPopup from "./program-popup"
 
 export function Hero() {
   return (
@@ -27,10 +28,10 @@ export function Hero() {
             className="max-w-4xl text-center lg:mt-20"
           >
             <h1 className="hero-text text-white">
-              Connect with our{" "}
-              <span className="text-[--accent]">counselors</span> today to{" "}
+              Inspiring{" "}
+              <span className="text-[--accent]">Your</span> Travel{" "}
               <span className="relative inline-block">
-                get started
+                Dream
                 <motion.span
                   className="absolute -bottom-2 left-0 h-1 w-full bg-[--accent]"
                   initial={{ scaleX: 0 }}
@@ -55,13 +56,14 @@ export function Hero() {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="mt-8"
             >
-              <Link
+              {/* <Link
                 href="#contact"
                 className="inline-flex items-center rounded-full bg-white px-8 py-4 text-sm font-medium text-[--primary] transition-all hover:bg-[--accent]"
               >
                 Checkout our Programmes
                 <ArrowRight className="ml-4 h-5 w-5" />
-              </Link>
+              </Link> */}
+              <ProgramsPopup/>
             </motion.div>
           </motion.div>
         </div>

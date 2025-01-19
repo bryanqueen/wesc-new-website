@@ -7,7 +7,7 @@ interface ButtonProps {
 
 export default function Button({ isActive, toggleMenu }: ButtonProps) {
   return (
-    <div className="md:hidden border border-white/20 w-24 h-10 cursor-pointer text-white rounded-full overflow-hidden">
+    <div className="lg:hidden border border-white/20 w-24 h-10 cursor-pointer text-white rounded-full overflow-hidden">
       <motion.div
         className="relative w-full h-full "
         animate={{ top: isActive ? "-100%" : "0%" }}
@@ -37,10 +37,10 @@ interface PerspectiveTextProps {
 function PerspectiveText({ label }: PerspectiveTextProps) {
   return (
     <div className="flex flex-col justify-center items-center h-full w-full transform-style-3d transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]">
-      <p className="transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] uppercase">
+      <p className="transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] uppercase select-none">
         {label}
       </p>
-      <p className="absolute transform origin-bottom-center rotate-x-90 translate-y-2.5 opacity-0 transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] uppercase">
+      <p className="absolute transform origin-bottom-center rotate-x-90 translate-y-2.5 opacity-0 transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] uppercase select-none">
         {label}
       </p>
     </div>
