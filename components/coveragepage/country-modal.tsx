@@ -53,7 +53,7 @@ const CountryModal = ({ market, onClose }: { market: Market; onClose: () => void
             >
                 <div
                     ref={modalContentRef}
-                    className="absolute inset-0 overflow-y-auto rounded-3xl"
+                    className="absolute inset-0 overflow-y-auto rounded-3xl no-scrollbar snap-y snap-mandatory"
                 >
                     {/* Header - Now properly fixed */}
                     <div

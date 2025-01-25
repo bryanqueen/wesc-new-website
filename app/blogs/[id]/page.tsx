@@ -13,25 +13,25 @@ export default function BlogPage({ params }: { params: Promise<{ id: string }> }
 
     useEffect(() => {
         const unwrapParams = async () => {
-            const {id} = await params; //Unwrap the promise
+            const { id } = await params; //Unwrap the promise
             setId(id) //Store the ID in state
         }
         unwrapParams()
-    },[params])
+    }, [params])
 
     useEffect(() => {
-        if(id){
+        if (id) {
             const fetchBlog = async () => {
                 try {
                     const response = await fetch(`/api/proxy-blogs/${id}`)
-                    if(!response.ok){
+                    if (!response.ok) {
                         throw new Error('Failed to fetch Blog')
                     }
                     const data = await response.json()
                     setBlog(data)
                 } catch (error) {
-                   console.error('Error Fetching Blog', error) 
-                } finally{
+                    console.error('Error Fetching Blog', error)
+                } finally {
                     setIsLoading(false)
                 }
             }
@@ -40,20 +40,24 @@ export default function BlogPage({ params }: { params: Promise<{ id: string }> }
 
     }, [id])
 
-    if(loading){
-        return <div className="text-center py-20 h-[75vh] text-3xl md:text-5xl">Loading blog...</div>
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">
+            <div className="animate-pulse text-4xl text-gray-500">
+                Loading Blog...
+            </div>
+        </div>
     }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <BlogViewer
-        title={blog.title}
-        coverImage={blog.coverImage}
-        content={blog.content}
-        author={blog.author.username}
-        createdAt={blog.createdAt}
-      />
-    </div>
-  )
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <BlogViewer
+                title={blog.title}
+                coverImage={blog.coverImage}
+                content={blog.content}
+                author={blog.author.username}
+                createdAt={blog.createdAt}
+            />
+        </div>
+    )
 }
 

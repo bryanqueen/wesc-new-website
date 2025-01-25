@@ -85,7 +85,7 @@ export function BlogOverview() {
           <h2 className="text-2xl md:text-4xl font-bold text-[--primary]">Recent Blogs</h2>
           <Link
             href="/blogs"
-            className="inline-flex items-center gap-2 bg-white rounded-full px-6 py-2 text-[--primary] hover:bg-[--primary] hover:text-white transition-colors"
+            className="inline-flex text-sm items-center gap-2 bg-white rounded-full px-6 py-2 text-[--primary] hover:bg-[--primary] hover:text-white transition-colors"
           >
             View all Blogs
             <ArrowRight className="w-4 h-4" />

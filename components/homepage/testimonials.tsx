@@ -158,7 +158,7 @@ export default function Testimonials() {
                   exit="exit"
                   className="absolute w-full"
                 >
-                  <div className="max-w-4xl mx-auto bg-white rounded-xl p-6 md:p-12 shadow-sm h-[500px] md:h-[600px] flex flex-col justify-between">
+                  <div className="max-w-2xl mx-auto bg-white rounded-xl p-6 md:p-12 shadow-sm h-[500px] md:h-[500px] flex flex-col justify-between">
                     <motion.div 
                       className="text-2xl md:text-4xl font-light text-[--primary] mb-8"
                       initial={{ opacity: 0, y: 20 }}

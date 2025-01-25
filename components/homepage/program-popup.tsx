@@ -92,7 +92,7 @@ export default function ProgramsPopup() {
                 className="h-1 lg:h-2 rounded-full transition-all duration-300"
                 style={{
                   width: index === activeIndex ? '1.5rem' : '0.75rem',
-                  backgroundColor: index === activeIndex ? 'var(--accent)' : 'rgba(255, 255, 255, 0.3)'
+                  backgroundColor: index === activeIndex ? 'var(--accent)' : 'rgba(255, 255, 255, 0.3)',
                 }}
               />
             ))}
@@ -112,12 +112,14 @@ export default function ProgramsPopup() {
         {programmes[activeIndex] && (
           <div className="bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col h-full">
             <img
-              src={programmes[activeIndex].coverImage || "/placeholder.svg"}
+              src={programmes[activeIndex].coverImage || '/placeholder.svg'}
               alt={programmes[activeIndex].title}
               className="w-full h-40 lg:h-64 object-cover"
             />
-            <div className="p-4 lg:p-6 flex flex-col flex-grow">
-              <h3 className="text-xl lg:text-2xl font-light mb-2 lg:mb-3 text-[--primary]">{programmes[activeIndex].title}</h3>
+            <div className="p-4 lg:p-6 flex flex-col flex-grow overflow-y-auto snap-mandatory snap-y no-scrollbar">
+              <h3 className="text-xl lg:text-2xl font-light mb-2 lg:mb-4 text-[--primary]">
+                {programmes[activeIndex].title}
+              </h3>
               <p className="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-lg flex-grow">
                 {truncateDescription(programmes[activeIndex].description)}
               </p>
@@ -134,6 +136,7 @@ export default function ProgramsPopup() {
       </div>
     </div>
   );
+  
 
   const MobileLayout = () => (
     <div className="p-4 h-full flex flex-col">
@@ -146,24 +149,23 @@ export default function ProgramsPopup() {
           <X className="w-6 h-6" />
         </button>
       </div>
-
-      <div className="relative flex-grow overflow-hidden">
+      <div className="relative flex-grow overflow-y-auto">
         {programmes.map((program, index) => (
           <motion.div
             key={program._id}
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: activeIndex === index ? 1 : 0, x: activeIndex === index ? 0 : 100 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 flex flex-col"
+            className="absolute inset-0 flex flex-col h-full"
             style={{ display: activeIndex === index ? 'flex' : 'none' }}
           >
             <div className="bg-white rounded-2xl overflow-hidden shadow-lg flex flex-col flex-grow">
               <img
-                src={program.coverImage || "/placeholder.svg"}
+                src={program.coverImage || '/placeholder.svg'}
                 alt={program.title}
                 className="w-full h-48 object-cover"
               />
-              <div className="p-4 flex flex-col flex-grow">
+              <div className="p-4 flex flex-col flex-grow overflow-y-auto">
                 <h3 className="text-xl font-light mb-2 text-[--primary]">{program.title}</h3>
                 <p className="text-gray-600 mb-4 text-sm flex-grow">
                   {truncateDescription(program.description, 15)}
@@ -180,7 +182,6 @@ export default function ProgramsPopup() {
           </motion.div>
         ))}
       </div>
-
       <div className="mt-4 flex justify-between items-center">
         <button
           onClick={() => scroll('left')}
@@ -191,7 +192,6 @@ export default function ProgramsPopup() {
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-
         <div className="flex justify-center space-x-2">
           {programmes.map((_, index) => (
             <div
@@ -199,12 +199,11 @@ export default function ProgramsPopup() {
               className="h-1 rounded-full transition-all duration-300"
               style={{
                 width: index === activeIndex ? '1.5rem' : '0.5rem',
-                backgroundColor: index === activeIndex ? 'var(--accent)' : 'rgba(255, 255, 255, 0.3)'
+                backgroundColor: index === activeIndex ? 'var(--accent)' : 'rgba(255, 255, 255, 0.3)',
               }}
             />
           ))}
         </div>
-
         <button
           onClick={() => scroll('right')}
           className={`p-2 rounded-full bg-white/20 text-white transition-opacity ${
@@ -217,6 +216,7 @@ export default function ProgramsPopup() {
       </div>
     </div>
   );
+  
 
   return (
     <>

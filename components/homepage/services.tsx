@@ -33,7 +33,7 @@ const services = [
 
 export function Services() {
   return (
-    <section className="py-32 px-6 bg-white">
+    <section className="py-32 px-6 bg-[#FDF8F6]">
       <div className="container mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
