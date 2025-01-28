@@ -283,7 +283,7 @@ export default function MarketsPage() {
             {/* Hero Section */}
             <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center overflow-hidden">
                 <img
-                    src="https://www.wescng.com/assets/img27-BTEW6U-M.jpeg"
+                    src="/images/coverage/walking students.jpeg"
                     alt="Global Education"
                     className="absolute inset-0 w-full h-full object-cover"
                 />

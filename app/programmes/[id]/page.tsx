@@ -3,8 +3,12 @@
 import { notFound } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import ProgrammeViewer from '@/components/programmepage/programme-viewer'
+import type { Metadata } from 'next'
 
-export default function ProgrammePage({ params }: { params: { id: string } }) {
+
+
+
+export default function ProgrammePage({ params }: { params: Promise<{ id: string }> }) {
     const [programme, setProgramme] = useState<any>(null)
     const [loading, setIsLoading] = useState(true)
     const [id, setId] = useState<any>(null)
@@ -61,6 +65,7 @@ export default function ProgrammePage({ params }: { params: { id: string } }) {
                 coverImage={programme.coverImage}
                 content={programme.content}
                 form={programme.form}
+                programmeId={id}
             />
         </div>
     )

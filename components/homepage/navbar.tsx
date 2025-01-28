@@ -86,7 +86,7 @@ export function Navbar() {
 
         {/* Desktop CTA */}
         <Link
-          href="/contact"
+          href="/apply-for-eligibility"
           className={`hidden lg:inline-flex rounded-full px-6 py-3 text-sm transition-colors ${isScrolled ? 'text-[--primary] bg-white hover:text-[--primary]' : 'text-white hover:text-[--accent] bg-[--primary]'
             }`}
         >
@@ -131,7 +131,7 @@ export function Navbar() {
                   className=""
                 >
                   <Link
-                    href="/contact"
+                    href="/apply-for-eligibility"
                     className="flex items-center justify-between w-full px-8 py-4 text-lg font-light text-[--primary] bg-white rounded-full hover:opacity-90 transition-opacity"
                     onClick={() => setIsActive(false)}
                   >

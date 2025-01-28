@@ -25,7 +25,7 @@ const markets = [
       students: "1M+",
       ranking: "Top 5"
     },
-    image: "https://media.istockphoto.com/id/478758048/photo/the-old-schools-of-cambridge-university.jpg?s=612x612&w=0&k=20&c=hczjG753IaOmFBVL2QNSp3zi23835rbd25WoXmUF7Gk="
+    image: "/images/Stanford University.jfif"
   },
   {
     country: "Canada",
@@ -36,7 +36,7 @@ const markets = [
       students: "350K+",
       ranking: "Top 15"
     },
-    image: "/api/placeholder/800/500"
+    image: "/images/U of T.jfif"
   },
   {
     country: "Ireland",
@@ -47,7 +47,7 @@ const markets = [
       students: "200K+",
       ranking: "Top 20"
     },
-    image: "/api/placeholder/800/500"
+    image: "/images/Trinity college.jfif"
   }
 ]
 

@@ -109,7 +109,7 @@ export function BlogOverview() {
             >
               <Link href={`/blogs/${blog._id}`}>
                 <div className="group relative overflow-hidden rounded-t-3xl bg-white">
-                  <div className="relative aspect-[4/3] overflow-hidden">
+                  <div className="relative aspect-[2/1] overflow-hidden">
                     <Image
                       src={blog.coverImage || '/placeholder.svg'}
                       alt={blog.title}

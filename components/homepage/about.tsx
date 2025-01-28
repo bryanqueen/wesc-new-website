@@ -74,7 +74,7 @@ export function About() {
               transition={{ duration: 1, ease: "easeInOut" }}
             >
               <img
-                src="https://www.wescng.com/assets/img23-BOoBW_vy.jpeg"
+                src="/images/About-section.jpeg"
                 alt="About WESC"
                 className="w-full h-full object-cover"
               />

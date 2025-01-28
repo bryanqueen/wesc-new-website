@@ -122,7 +122,7 @@ export default function BlogsPage() {
       {/* Hero Section */}
       <section className="relative h-[60vh] min-h-[400x] flex items-center justify-center overflow-hidden">
         <Image
-          src="/images/blogs/hero.jpg"
+          src="/images/blog/blog-hero.jfif"
           alt="Blogs Hero"
           fill
           className="object-cover"

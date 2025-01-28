@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, ArrowRight, ArrowLeft, X } from 'lucide-react'
+import { CheckCircle2, XCircle, ArrowRight, ArrowLeft, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -13,6 +13,8 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
+
 
 interface FormField {
   id: string;
@@ -46,15 +48,15 @@ interface InteractiveFormProps {
     };
   };
   onClose: () => void;
+  programmeId: string
 }
 
-export function InteractiveForm({ form, onClose }: InteractiveFormProps) {
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
-  const [formData, setFormData] = useState<Record<string, any>>({})
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormProps) {
+    const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
+    const [formData, setFormData] = useState<Record<string, any>>({})
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'success' | 'error'>('idle')
+    const [submissionMessage, setSubmissionMessage] = useState('')
 
   const currentSection = form.sections[currentSectionIndex]
 
@@ -95,6 +97,7 @@ export function InteractiveForm({ form, onClose }: InteractiveFormProps) {
     }
   }
 
+
   const handleNextSection = () => {
     const sectionFields = currentSection.fields
     const newErrors: Record<string, string> = {}
@@ -118,33 +121,53 @@ export function InteractiveForm({ form, onClose }: InteractiveFormProps) {
     if (currentSectionIndex < form.sections.length - 1) {
       setCurrentSectionIndex(prev => prev + 1)
     } else {
-      handleSubmit()
+      handleSubmit()  // Now passes no arguments
     }
   }
+
 
   const handleSubmit = async () => {
-    setIsSubmitting(true)
     try {
-      const response = await fetch('/api/proxy-application', {
-        method: 'POST',
+      // Map form data to include field labels as keys
+      const formattedFormData = Object.keys(formData).reduce((acc, fieldId) => {
+        const field = currentSection.fields.find(f => f.id === fieldId) || form.sections.flatMap(s => s.fields).find(f => f.id === fieldId);
+        if (field) {
+          acc[field.label] = formData[fieldId];
+        }
+        return acc;
+      }, {} as Record<string, any>);
+  
+      console.log('Submitting payload:', {
+        programmeId,
+        formData: formattedFormData
+      });
+  
+      const response = await fetch("/api/proxy-application", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
-      })
-
+        body: JSON.stringify({
+          programmeId,
+          formData: formattedFormData,
+        }),
+      });
+  
       if (!response.ok) {
-        throw new Error('Submission failed')
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      setSubmitSuccess(true)
+  
+      const data = await response.json();
+      setSubmissionStatus('success');
+      setSubmissionMessage(form.settings?.successMessage || 'Application Submitted Successfully!');
     } catch (error) {
-      console.error('Application submission error:', error)
-      // Optionally set an error state to show user
-    } finally {
-      setIsSubmitting(false)
+      console.error("Error submitting application:", error);
+      setSubmissionStatus('error');
+      setSubmissionMessage('Failed to submit application. Please try again.');
     }
-  }
+  };
 
   const renderField = (field: FormField) => {
     const value = formData[field.id] || ''
@@ -206,17 +229,31 @@ export function InteractiveForm({ form, onClose }: InteractiveFormProps) {
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
         )
-      case 'checkbox':
-        return (
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={value}
-              onCheckedChange={(checked) => handleFieldChange(field.id, checked)}
-              id={field.id}
-            />
-            <Label htmlFor={field.id}>{field.label}</Label>
-          </div>
-        )
+        case "checkbox":
+            return (
+              <div className="space-y-2">
+                {field.options?.map((option) => (
+                  <div key={option} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`${field.id}-${option}`}
+                      checked={(value as string[])?.includes(option)}
+                      onCheckedChange={(checked) => {
+                        const currentValues = (value as string[]) || []
+                        const newValues = checked ? [...currentValues, option] : currentValues.filter((v) => v !== option)
+                        handleFieldChange(field.id, newValues)
+                      }}
+                      className={cn(
+                        "border-gray-300 text-black focus:ring-black",
+                        "checked:bg-black checked:border-black",
+                        "data-[state=checked]:bg-black data-[state=checked]:border-black",
+                      )}
+                    />
+                    <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
+                  </div>
+                ))}
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+              </div>
+            )
         case 'number':
             return (
               <div className="space-y-2">
@@ -300,20 +337,32 @@ export function InteractiveForm({ form, onClose }: InteractiveFormProps) {
     }
   }
 
-  if (submitSuccess) {
+  // Render Submission Status Card
+  if (submissionStatus !== 'idle') {
     return (
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center"
+        className="fixed inset-0 z-50 bg-white/70 backdrop-blur-sm flex items-center justify-center"
       >
-        <CheckCircle2 className="w-24 h-24 text-green-500 mb-6" />
-        <h2 className="text-3xl font-bold mb-4">
-          {form.settings?.successMessage || 'Application Submitted Successfully!'}
-        </h2>
-        <Button onClick={onClose} className="mt-6">
-          Close
-        </Button>
+        <div className="bg-white shadow-2xl rounded-xl p-8 max-w-md w-full text-center">
+          {submissionStatus === 'success' ? (
+            <CheckCircle2 className="w-24 h-24 text-green-500 mx-auto mb-6" />
+          ) : (
+            <XCircle className="w-24 h-24 text-red-500 mx-auto mb-6" />
+          )}
+          
+          <h2 className={`text-2xl font-bold mb-4 ${submissionStatus === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+            {submissionMessage}
+          </h2>
+          
+          <Button 
+            onClick={onClose} 
+            className={`mt-6 ${submissionStatus === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+          >
+            Close
+          </Button>
+        </div>
       </motion.div>
     )
   }

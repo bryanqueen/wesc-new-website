@@ -43,7 +43,8 @@ interface ProgrammeViewerProps {
             submitButtonText?: string;
             successMessage?: string;
         };
-    }
+    };
+    programmeId: string
 }
 
 const defaultForm = {
@@ -59,7 +60,8 @@ export default function ProgrammeViewer({
     description,
     coverImage,
     content,
-    form
+    form,
+    programmeId
 }: ProgrammeViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const { scrollYProgress } = useScroll({
@@ -261,6 +263,7 @@ export default function ProgrammeViewer({
             {/* Application Form Sheet */}
             {isFormOpen && (
                 <InteractiveForm
+                    programmeId={programmeId}
                     form={form || defaultForm}
                     onClose={() => setIsFormOpen(false)}
                 />
