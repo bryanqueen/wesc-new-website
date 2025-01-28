@@ -36,7 +36,7 @@ export default function ApplyForEligibility() {
             {/* Hero Section */}
             <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center overflow-hidden">
                 <Image
-                    src="/images/application/eligibility-hero.jfif"
+                    src="/images/application/eligibility-hero.jpg"
                     alt="Apply for Eligibility Hero"
                     fill
                     className="object-cover"
