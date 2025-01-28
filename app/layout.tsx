@@ -20,11 +20,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.wescng.com",
+    url: "https://wescng.com",
     siteName: "WESC",
     images: [
       {
-        url: "https://www.wesc.com/og-image.png",
+        url: "https://wesc.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "WESC - World Education Service Center"

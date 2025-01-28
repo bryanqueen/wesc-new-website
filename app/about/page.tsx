@@ -101,7 +101,7 @@ export default function AboutPage() {
     { name: "Ajiboye Gloria", position: "Persuasive Sales Officer", image: "/images/about/Teams/Ajiboye.jpg" },
     { name: "Joseph Imhanbor", position: "Social Media Manager", image: "/images/about/Teams/Joseph.jpeg" },
     { name: "Daniel Umeh", position: "Software Engineer", image: "/images/about/Teams/Daniel.jpg" },
-    {name: "Akure Temitope", position: "Customer relations", image: "/images/about/Teams/Temitope.jfif"}
+    {name: "Akure Temitope", position: "Customer relations", image: "/images/about/Teams/Temitope.jpg"}
   ]
 
   return (
@@ -197,7 +197,7 @@ export default function AboutPage() {
                 viewport={{ once: true }}
               >
                 <Image
-                  src="/images/about/vision.jfif"
+                  src="/images/about/vision.jpg"
                   alt="Why Choose WESC"
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"

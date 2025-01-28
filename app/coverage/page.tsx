@@ -74,7 +74,7 @@ const markets = [
             ranking: "Top 50 in EU",
             cities: 4
         },
-        image: "/images/countries/cyprus.jpg",
+        image: "/images/countries/Cyprus.jpg",
         highlights: [
             "Affordable education",
             "Mediterranean lifestyle",
@@ -100,7 +100,7 @@ const markets = [
             ranking: "#5 in Europe",
             cities: 12
         },
-        image: "/images/countries/france.jpg",
+        image: "/images/countries/France.jpg",
         highlights: [
             "Affordable public education",
             "Rich cultural experience",

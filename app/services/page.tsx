@@ -26,7 +26,7 @@ const preOfferServices = [
     {
         title: "University Selection",
         description: "We provide you with professional advice on school that matches your expectations and budget.",
-        image: "/images/services/University.jfif"
+        image: "/images/services/University.jpg"
     },
     {
         title: "Application Support",
@@ -41,7 +41,7 @@ const preOfferServices = [
     {
         title: "Scholarship Assistance",
         description: "We assist you to secure scholarships and grants based on your eligibility and qualifications.",
-        image: "/images/services/Scholarship.jfif"
+        image: "/images/services/Scholarship.jpg"
     },
     {
         title: "English Proficiency Classes",
@@ -64,7 +64,7 @@ const postOfferServices = [
     {
         title: "Flight Booking",
         description: "We help to book flights with the most competitive fares.",
-        image: "/images/services/flight.jpg"
+        image: "/images/services/Flight.jpg"
     },
     {
         title: "Accommodation Services",
@@ -158,7 +158,7 @@ export default function ServicesPage() {
             {/* Hero Section */}
             <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center overflow-hidden">
                 <Image
-                    src="/images/services/Services2 bg.jfif"
+                    src="/images/services/Services2 bg.jpg"
                     alt="Services Hero"
                     fill
                     className="object-cover"
