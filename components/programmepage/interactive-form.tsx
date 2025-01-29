@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, XCircle, ArrowRight, ArrowLeft, X } from 'lucide-react'
+import { CheckCircle2, XCircle, ArrowRight, ArrowLeft, X, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -52,13 +52,34 @@ interface InteractiveFormProps {
 }
 
 export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormProps) {
-    const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
-    const [formData, setFormData] = useState<Record<string, any>>({})
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({})
-    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'success' | 'error'>('idle')
-    const [submissionMessage, setSubmissionMessage] = useState('')
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
+  const [formData, setFormData] = useState<Record<string, any>>({})
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [submissionMessage, setSubmissionMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const formRef = useRef<HTMLDivElement>(null)
+  const errorRef = useRef<HTMLDivElement>(null)
 
   const currentSection = form.sections[currentSectionIndex]
+
+  useEffect(() => {
+    formRef.current?.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    })
+}, [currentSectionIndex])
+
+    // Function to scroll to first error
+    const scrollToError = () => {
+      const firstErrorField = document.querySelector('[data-has-error="true"]')
+      if (firstErrorField) {
+          firstErrorField.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+          })
+      }
+  }
 
   const validateField = (field: FormField, value: any): string | null => {
     if (field.required && !value) {
@@ -99,6 +120,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
 
 
   const handleNextSection = () => {
+    setIsLoading(true)
     const sectionFields = currentSection.fields
     const newErrors: Record<string, string> = {}
 
@@ -114,12 +136,15 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
     // If there are errors, don't proceed
     if (Object.keys(newErrors).length > 0) {
       setFormErrors(newErrors)
+      setIsLoading(false)
+      scrollToError()
       return
     }
 
     // Move to next section or submit
     if (currentSectionIndex < form.sections.length - 1) {
       setCurrentSectionIndex(prev => prev + 1)
+      setIsLoading(false)
     } else {
       handleSubmit()  // Now passes no arguments
     }
@@ -128,55 +153,53 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
 
   const handleSubmit = async () => {
     try {
-      // Map form data to include field labels as keys
-      const formattedFormData = Object.keys(formData).reduce((acc, fieldId) => {
-        const field = currentSection.fields.find(f => f.id === fieldId) || form.sections.flatMap(s => s.fields).find(f => f.id === fieldId);
-        if (field) {
-          acc[field.label] = formData[fieldId];
+        const formattedFormData = Object.keys(formData).reduce((acc, fieldId) => {
+            const field = currentSection.fields.find(f => f.id === fieldId) || 
+                        form.sections.flatMap(s => s.fields).find(f => f.id === fieldId);
+            if (field) {
+                acc[field.label] = formData[fieldId];
+            }
+            return acc;
+        }, {} as Record<string, any>);
+
+        const response = await fetch("/api/proxy-application", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                programmeId,
+                formData: formattedFormData,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return acc;
-      }, {} as Record<string, any>);
-  
-      console.log('Submitting payload:', {
-        programmeId,
-        formData: formattedFormData
-      });
-  
-      const response = await fetch("/api/proxy-application", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          programmeId,
-          formData: formattedFormData,
-        }),
-      });
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      setSubmissionStatus('success');
-      setSubmissionMessage(form.settings?.successMessage || 'Application Submitted Successfully!');
+
+        const data = await response.json();
+        setSubmissionStatus('success');
+        setSubmissionMessage(form.settings?.successMessage || 'Application Submitted Successfully!');
     } catch (error) {
-      console.error("Error submitting application:", error);
-      setSubmissionStatus('error');
-      setSubmissionMessage('Failed to submit application. Please try again.');
+        console.error("Error submitting application:", error);
+        setSubmissionStatus('error');
+        setSubmissionMessage('Failed to submit application. Please try again.');
+    } finally {
+        setIsLoading(false)
     }
-  };
+}
 
   const renderField = (field: FormField) => {
     const value = formData[field.id] || ''
     const error = formErrors[field.id]
+    const fieldProps = {
+      'data-has-error': error ? 'true' : 'false'
+  }
 
     switch (field.type) {
       case 'text':
         return (
-          <div className="space-y-2">
+          <div className="space-y-2" {...fieldProps}>
             <Input
               placeholder={field.placeholder}
               value={value}
@@ -187,7 +210,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
         )
       case 'textarea':
         return (
-          <div className="space-y-2">
+          <div className="space-y-2" {...fieldProps}>
             <Textarea
               placeholder={field.placeholder}
               value={value}
@@ -198,7 +221,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
         )
       case 'email':
         return (
-          <div className="space-y-2">
+          <div className="space-y-2" {...fieldProps}>
             <Input
               type="email"
               placeholder={field.placeholder}
@@ -210,7 +233,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
         )
       case 'select':
         return (
-          <div className="space-y-2">
+          <div className="space-y-2" {...fieldProps}>
             <Select 
               value={value}
               onValueChange={(newValue) => handleFieldChange(field.id, newValue)}
@@ -231,7 +254,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
         )
         case "checkbox":
             return (
-              <div className="space-y-2">
+              <div className="space-y-2" {...fieldProps}>
                 {field.options?.map((option) => (
                   <div key={option} className="flex items-center space-x-2">
                     <Checkbox
@@ -256,7 +279,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
             )
         case 'number':
             return (
-              <div className="space-y-2">
+              <div className="space-y-2" {...fieldProps}>
                 <Input
                   type="number"
                   placeholder={field.placeholder}
@@ -269,7 +292,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
       
           case 'tel':
             return (
-              <div className="space-y-2">
+              <div className="space-y-2" {...fieldProps}>
                 <Input
                   type="tel"
                   placeholder={field.placeholder}
@@ -282,7 +305,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
       
           case 'date':
             return (
-              <div className="space-y-2">
+              <div className="space-y-2" {...fieldProps}>
                 <Input
                   type="date"
                   placeholder={field.placeholder}
@@ -295,7 +318,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
       
           case 'file':
             return (
-              <div className="space-y-2">
+              <div className="space-y-2" {...fieldProps}>
                 <Input
                   type="file"
                   placeholder={field.placeholder}
@@ -311,7 +334,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
       
           case 'radio':
             return (
-              <div className="space-y-2">
+              <div className="space-y-2" {...fieldProps}>
                 <div className="flex flex-col space-y-2">
                   {field.options?.map((option) => (
                     <div key={option} className="flex items-center space-x-2">
@@ -369,65 +392,76 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
 
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 bg-white overflow-y-auto"
-    >
-      <div className="max-w-2xl mx-auto px-6 py-16 relative">
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="fixed inset-0 z-50 bg-white overflow-y-auto"
+    ref={formRef}
+>
+    <div className="max-w-2xl mx-auto px-6 py-16 relative">
         <button 
-          onClick={onClose} 
-          className="absolute top-6 right-6 text-gray-600 hover:text-black"
+            onClick={onClose} 
+            className="absolute top-6 right-6 text-gray-600 hover:text-black"
         >
-          <X className="w-8 h-8" />
+            <X className="w-8 h-8" />
         </button>
 
         <motion.div
-          key={currentSection.id}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
+            key={currentSection.id}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
         >
-          <h2 className="text-3xl font-bold mb-2">{currentSection.title}</h2>
-          {currentSection.description && (
-            <p className="text-gray-600 mb-6 font-semibold italic border-l-4 border-[--primary] pl-6">{currentSection.description}</p>
-          )}
-
-          <div className="space-y-6 mt-8">
-            {currentSection.fields.map((field) => (
-              <div key={field.id}>
-                <Label className="mb-2 font-bold block">{field.label}</Label>
-                {renderField(field)}
-                {field.helpText && (
-                  <p className="text-sm text-gray-500 mt-1">{field.helpText}</p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-between mt-12">
-            {currentSectionIndex > 0 && (
-              <Button 
-                variant="outline" 
-                onClick={() => setCurrentSectionIndex(prev => prev - 1)}
-                className="flex items-center"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Previous
-              </Button>
+            <h2 className="text-3xl font-bold mb-2">{currentSection.title}</h2>
+            {currentSection.description && (
+                <p className="text-gray-600 mb-6 font-semibold italic border-l-4 border-[--primary] pl-6">
+                    {currentSection.description}
+                </p>
             )}
-            <Button 
-              onClick={handleNextSection}
-              className="ml-auto bg-[--primary] hover:bg-[--primary] flex items-center"
-            >
-              {currentSectionIndex === form.sections.length - 1 
-                ? 'Submit' 
-                : 'Next'
-              }
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+
+            <div className="space-y-6 mt-8">
+                {currentSection.fields.map((field) => (
+                    <div key={field.id}>
+                        <Label className="mb-2 font-bold block">{field.label}</Label>
+                        {renderField(field)}
+                        {field.helpText && (
+                            <p className="text-sm text-gray-500 mt-1">{field.helpText}</p>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            <div className="flex justify-between mt-12">
+                {currentSectionIndex > 0 && (
+                    <Button 
+                        variant="outline" 
+                        onClick={() => setCurrentSectionIndex(prev => prev - 1)}
+                        className="flex items-center"
+                        disabled={isLoading}
+                    >
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+                    </Button>
+                )}
+                <Button 
+                    onClick={handleNextSection}
+                    className="ml-auto bg-[--primary] hover:bg-[--primary] flex items-center"
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            {currentSectionIndex === form.sections.length - 1 ? 'Submitting...' : 'Loading...'}
+                        </>
+                    ) : (
+                        <>
+                            {currentSectionIndex === form.sections.length - 1 ? 'Submit' : 'Next'}
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </>
+                    )}
+                </Button>
+            </div>
         </motion.div>
-      </div>
-    </motion.div>
+    </div>
+</motion.div>
   )
 }
 
