@@ -222,7 +222,7 @@ export default function ProgramsPopup() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center rounded-full bg-white px-8 py-4 text-sm font-medium text-[--primary] transition-all hover:bg-[--accent]"
+        className="inline-flex items-center rounded-full bg-white px-8 py-4 text-sm font-medium text-[--primary] transition-all hover:bg-transparent hover:text-white hover:border"
       >
         Checkout our Programmes
         <ArrowRight className="ml-4 h-5 w-5" />

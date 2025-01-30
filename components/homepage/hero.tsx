@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { ArrowRight } from 'lucide-react'
-import ProgramsPopup from "./program-popup"
+import HeroCtaGroup from "./hero-cta-group"
 
 export function Hero() {
   return (
@@ -54,7 +54,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="mt-8"
+              // className="mt-8"
             >
               {/* <Link
                 href="#contact"
@@ -63,7 +63,7 @@ export function Hero() {
                 Checkout our Programmes
                 <ArrowRight className="ml-4 h-5 w-5" />
               </Link> */}
-              <ProgramsPopup/>
+              <HeroCtaGroup/>
             </motion.div>
           </motion.div>
         </div>
