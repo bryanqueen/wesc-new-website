@@ -6,12 +6,12 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
@@ -51,7 +51,7 @@ interface InteractiveFormProps {
   programmeId: string
 }
 
-export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormProps) {
+export function InteractiveForm({ form, onClose, programmeId }: InteractiveFormProps) {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
   const [formData, setFormData] = useState<Record<string, any>>({})
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
@@ -59,26 +59,38 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
   const [submissionMessage, setSubmissionMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
-  const errorRef = useRef<HTMLDivElement>(null)
+
 
   const currentSection = form.sections[currentSectionIndex]
 
   useEffect(() => {
     formRef.current?.scrollTo({
-        top: 0,
-        behavior: 'smooth'
+      top: 0,
+      behavior: 'smooth'
     })
-}, [currentSectionIndex])
+  }, [currentSectionIndex])
 
-    // Function to scroll to first error
-    const scrollToError = () => {
+  useEffect(() => {
+    if (Object.keys(formErrors).length > 0) {
       const firstErrorField = document.querySelector('[data-has-error="true"]')
       if (firstErrorField) {
-          firstErrorField.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-          })
+        firstErrorField.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
       }
+    }
+  }, [formErrors]) // This will run whenever formErrors changes
+
+  // Function to scroll to first error
+  const scrollToError = () => {
+    const firstErrorField = document.querySelector('[data-has-error="true"]')
+    if (firstErrorField) {
+      firstErrorField.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+    }
   }
 
   const validateField = (field: FormField, value: any): string | null => {
@@ -107,7 +119,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
 
   const handleFieldChange = (fieldId: string, value: any) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }))
-    
+
     // Clear any existing error for this field
     if (formErrors[fieldId]) {
       setFormErrors(prev => {
@@ -119,82 +131,81 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
   }
 
 
-  const handleNextSection = () => {
+  const handleNextSection = async () => {
     setIsLoading(true)
     const sectionFields = currentSection.fields
     const newErrors: Record<string, string> = {}
 
     // Validate current section fields
     sectionFields.forEach(field => {
-      const fieldValue = formData[field.id]
-      const error = validateField(field, fieldValue)
-      if (error) {
-        newErrors[field.id] = error
-      }
+        const fieldValue = formData[field.id]
+        const error = validateField(field, fieldValue)
+        if (error) {
+            newErrors[field.id] = error
+        }
     })
 
     // If there are errors, don't proceed
     if (Object.keys(newErrors).length > 0) {
-      setFormErrors(newErrors)
-      setIsLoading(false)
-      scrollToError()
-      return
+        setFormErrors(newErrors) // The useEffect will handle scrolling now
+        setIsLoading(false)
+        return
     }
 
     // Move to next section or submit
     if (currentSectionIndex < form.sections.length - 1) {
-      setCurrentSectionIndex(prev => prev + 1)
-      setIsLoading(false)
+        setCurrentSectionIndex(prev => prev + 1)
+        setIsLoading(false)
     } else {
-      handleSubmit()  // Now passes no arguments
+        await handleSubmit()
     }
-  }
+}
 
 
   const handleSubmit = async () => {
     try {
-        const formattedFormData = Object.keys(formData).reduce((acc, fieldId) => {
-            const field = currentSection.fields.find(f => f.id === fieldId) || 
-                        form.sections.flatMap(s => s.fields).find(f => f.id === fieldId);
-            if (field) {
-                acc[field.label] = formData[fieldId];
-            }
-            return acc;
-        }, {} as Record<string, any>);
-
-        const response = await fetch("/api/proxy-application", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                programmeId,
-                formData: formattedFormData,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+      const formattedFormData = Object.keys(formData).reduce((acc, fieldId) => {
+        const field = currentSection.fields.find(f => f.id === fieldId) ||
+          form.sections.flatMap(s => s.fields).find(f => f.id === fieldId);
+        if (field) {
+          acc[field.label] = formData[fieldId];
         }
+        return acc;
+      }, {} as Record<string, any>);
 
-        const data = await response.json();
-        setSubmissionStatus('success');
-        setSubmissionMessage(form.settings?.successMessage || 'Application Submitted Successfully!');
+      const response = await fetch("/api/proxy-application", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          programmeId,
+          formData: formattedFormData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setSubmissionStatus('success');
+      setSubmissionMessage(form.settings?.successMessage || 'Application Submitted Successfully!');
     } catch (error) {
-        console.error("Error submitting application:", error);
-        setSubmissionStatus('error');
-        setSubmissionMessage('Failed to submit application. Please try again.');
+      console.error("Error submitting application:", error);
+      setSubmissionStatus('error');
+      setSubmissionMessage('Failed to submit application. Please try again.');
     } finally {
-        setIsLoading(false)
+      setIsLoading(false)
     }
-}
+  }
 
   const renderField = (field: FormField) => {
     const value = formData[field.id] || ''
     const error = formErrors[field.id]
     const fieldProps = {
       'data-has-error': error ? 'true' : 'false'
-  }
+    }
 
     switch (field.type) {
       case 'text':
@@ -234,7 +245,7 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
       case 'select':
         return (
           <div className="space-y-2" {...fieldProps}>
-            <Select 
+            <Select
               value={value}
               onValueChange={(newValue) => handleFieldChange(field.id, newValue)}
             >
@@ -252,118 +263,118 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
         )
-        case "checkbox":
-            return (
-              <div className="space-y-2" {...fieldProps}>
-                {field.options?.map((option) => (
-                  <div key={option} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`${field.id}-${option}`}
-                      checked={(value as string[])?.includes(option)}
-                      onCheckedChange={(checked) => {
-                        const currentValues = (value as string[]) || []
-                        const newValues = checked ? [...currentValues, option] : currentValues.filter((v) => v !== option)
-                        handleFieldChange(field.id, newValues)
-                      }}
-                      className={cn(
-                        "border-gray-300 text-black focus:ring-black",
-                        "checked:bg-black checked:border-black",
-                        "data-[state=checked]:bg-black data-[state=checked]:border-black",
-                      )}
-                    />
-                    <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
-                  </div>
-                ))}
-                {error && <p className="text-red-500 text-sm">{error}</p>}
-              </div>
-            )
-        case 'number':
-            return (
-              <div className="space-y-2" {...fieldProps}>
-                <Input
-                  type="number"
-                  placeholder={field.placeholder}
-                  value={value}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                />
-                {error && <p className="text-red-500 text-sm">{error}</p>}
-              </div>
-            )
-      
-          case 'tel':
-            return (
-              <div className="space-y-2" {...fieldProps}>
-                <Input
-                  type="tel"
-                  placeholder={field.placeholder}
-                  value={value}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                />
-                {error && <p className="text-red-500 text-sm">{error}</p>}
-              </div>
-            )
-      
-          case 'date':
-            return (
-              <div className="space-y-2" {...fieldProps}>
-                <Input
-                  type="date"
-                  placeholder={field.placeholder}
-                  value={value}
-                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                />
-                {error && <p className="text-red-500 text-sm">{error}</p>}
-              </div>
-            )
-      
-          case 'file':
-            return (
-              <div className="space-y-2" {...fieldProps}>
-                <Input
-                  type="file"
-                  placeholder={field.placeholder}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    handleFieldChange(field.id, file)
+      case "checkbox":
+        return (
+          <div className="space-y-2" {...fieldProps}>
+            {field.options?.map((option) => (
+              <div key={option} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`${field.id}-${option}`}
+                  checked={(value as string[])?.includes(option)}
+                  onCheckedChange={(checked) => {
+                    const currentValues = (value as string[]) || []
+                    const newValues = checked ? [...currentValues, option] : currentValues.filter((v) => v !== option)
+                    handleFieldChange(field.id, newValues)
                   }}
+                  className={cn(
+                    "border-gray-300 text-black focus:ring-black",
+                    "checked:bg-black checked:border-black",
+                    "data-[state=checked]:bg-black data-[state=checked]:border-black",
+                  )}
                 />
-                {value && <p className="text-sm text-gray-600">{(value as File).name}</p>}
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
               </div>
-            )
-      
-          case 'radio':
-            return (
-              <div className="space-y-2" {...fieldProps}>
-                <div className="flex flex-col space-y-2">
-                  {field.options?.map((option) => (
-                    <div key={option} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id={`${field.id}-${option}`}
-                        name={field.id}
-                        value={option}
-                        checked={value === option}
-                        onChange={() => handleFieldChange(field.id, option)}
-                        className="form-radio"
-                      />
-                      <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
-                    </div>
-                  ))}
+            ))}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+        )
+      case 'number':
+        return (
+          <div className="space-y-2" {...fieldProps}>
+            <Input
+              type="number"
+              placeholder={field.placeholder}
+              value={value}
+              onChange={(e) => handleFieldChange(field.id, e.target.value)}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+        )
+
+      case 'tel':
+        return (
+          <div className="space-y-2" {...fieldProps}>
+            <Input
+              type="tel"
+              placeholder={field.placeholder}
+              value={value}
+              onChange={(e) => handleFieldChange(field.id, e.target.value)}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+        )
+
+      case 'date':
+        return (
+          <div className="space-y-2" {...fieldProps}>
+            <Input
+              type="date"
+              placeholder={field.placeholder}
+              value={value}
+              onChange={(e) => handleFieldChange(field.id, e.target.value)}
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+        )
+
+      case 'file':
+        return (
+          <div className="space-y-2" {...fieldProps}>
+            <Input
+              type="file"
+              placeholder={field.placeholder}
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                handleFieldChange(field.id, file)
+              }}
+            />
+            {value && <p className="text-sm text-gray-600">{(value as File).name}</p>}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+        )
+
+      case 'radio':
+        return (
+          <div className="space-y-2" {...fieldProps}>
+            <div className="flex flex-col space-y-2">
+              {field.options?.map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id={`${field.id}-${option}`}
+                    name={field.id}
+                    value={option}
+                    checked={value === option}
+                    onChange={() => handleFieldChange(field.id, option)}
+                    className="form-radio"
+                  />
+                  <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
                 </div>
-                {error && <p className="text-red-500 text-sm">{error}</p>}
-              </div>
-            )
-      
-          default:
-            return null
+              ))}
+            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+        )
+
+      default:
+        return null
     }
   }
 
   // Render Submission Status Card
   if (submissionStatus !== 'idle') {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="fixed inset-0 z-50 bg-white/70 backdrop-blur-sm flex items-center justify-center"
@@ -374,13 +385,13 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
           ) : (
             <XCircle className="w-24 h-24 text-red-500 mx-auto mb-6" />
           )}
-          
+
           <h2 className={`text-2xl font-bold mb-4 ${submissionStatus === 'success' ? 'text-green-600' : 'text-red-600'}`}>
             {submissionMessage}
           </h2>
-          
-          <Button 
-            onClick={onClose} 
+
+          <Button
+            onClick={onClose}
             className={`mt-6 ${submissionStatus === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
           >
             Close
@@ -391,77 +402,77 @@ export function InteractiveForm({ form, onClose, programmeId}: InteractiveFormPr
   }
 
   return (
-    <motion.div 
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className="fixed inset-0 z-50 bg-white overflow-y-auto"
-    ref={formRef}
->
-    <div className="max-w-2xl mx-auto px-6 py-16 relative">
-        <button 
-            onClick={onClose} 
-            className="absolute top-6 right-6 text-gray-600 hover:text-black"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-50 bg-white overflow-y-auto"
+      ref={formRef}
+    >
+      <div className="max-w-2xl mx-auto px-6 py-16 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 text-gray-600 hover:text-black"
         >
-            <X className="w-8 h-8" />
+          <X className="w-8 h-8" />
         </button>
 
         <motion.div
-            key={currentSection.id}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
+          key={currentSection.id}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
         >
-            <h2 className="text-3xl font-bold mb-2">{currentSection.title}</h2>
-            {currentSection.description && (
-                <p className="text-gray-600 mb-6 font-semibold italic border-l-4 border-[--primary] pl-6">
-                    {currentSection.description}
-                </p>
-            )}
+          <h2 className="text-3xl font-bold mb-2">{currentSection.title}</h2>
+          {currentSection.description && (
+            <p className="text-gray-600 mb-6 font-semibold italic border-l-4 border-[--primary] pl-6">
+              {currentSection.description}
+            </p>
+          )}
 
-            <div className="space-y-6 mt-8">
-                {currentSection.fields.map((field) => (
-                    <div key={field.id}>
-                        <Label className="mb-2 font-bold block">{field.label}</Label>
-                        {renderField(field)}
-                        {field.helpText && (
-                            <p className="text-sm text-gray-500 mt-1">{field.helpText}</p>
-                        )}
-                    </div>
-                ))}
-            </div>
-
-            <div className="flex justify-between mt-12">
-                {currentSectionIndex > 0 && (
-                    <Button 
-                        variant="outline" 
-                        onClick={() => setCurrentSectionIndex(prev => prev - 1)}
-                        className="flex items-center"
-                        disabled={isLoading}
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Previous
-                    </Button>
+          <div className="space-y-6 mt-8">
+            {currentSection.fields.map((field) => (
+              <div key={field.id}>
+                <Label className="mb-2 font-bold block">{field.label}</Label>
+                {renderField(field)}
+                {field.helpText && (
+                  <p className="text-sm text-gray-500 mt-1">{field.helpText}</p>
                 )}
-                <Button 
-                    onClick={handleNextSection}
-                    className="ml-auto bg-[--primary] hover:bg-[--primary] flex items-center"
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            {currentSectionIndex === form.sections.length - 1 ? 'Submitting...' : 'Loading...'}
-                        </>
-                    ) : (
-                        <>
-                            {currentSectionIndex === form.sections.length - 1 ? 'Submit' : 'Next'}
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                        </>
-                    )}
-                </Button>
-            </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-between mt-12">
+            {currentSectionIndex > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setCurrentSectionIndex(prev => prev - 1)}
+                className="flex items-center"
+                disabled={isLoading}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+              </Button>
+            )}
+            <Button
+              onClick={handleNextSection}
+              className="ml-auto bg-[--primary] hover:bg-[--primary] flex items-center"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {currentSectionIndex === form.sections.length - 1 ? 'Submitting...' : 'Loading...'}
+                </>
+              ) : (
+                <>
+                  {currentSectionIndex === form.sections.length - 1 ? 'Submit' : 'Next'}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </motion.div>
-    </div>
-</motion.div>
+      </div>
+    </motion.div>
   )
 }
 
