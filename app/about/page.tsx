@@ -250,10 +250,10 @@ export default function AboutPage() {
         >
           <h3 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">Ready to Start Your Educational Journey?</h3>
           <Link
-            href="/contact"
+            href="/apply-for-eligibility"
             className="inline-flex items-center bg-white text-[--primary] px-6 py-3 md:px-8 md:py-4 rounded-full hover:bg-gray-100 transition-colors"
           >
-            Book a Consultation
+            Apply for eligibility
             <ArrowUpRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
           </Link>
         </motion.div>
