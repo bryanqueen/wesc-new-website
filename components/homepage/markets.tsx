@@ -25,7 +25,7 @@ const markets = [
       students: "1M+",
       ranking: "Top 5"
     },
-    image: "/images/Stanford University.jfif"
+    image: "/images/Stanford University.jpg"
   },
   {
     country: "Canada",
@@ -36,7 +36,7 @@ const markets = [
       students: "350K+",
       ranking: "Top 15"
     },
-    image: "/images/U of T.jfif"
+    image: "/images/U of T.jpg"
   },
   {
     country: "Ireland",
@@ -47,7 +47,7 @@ const markets = [
       students: "200K+",
       ranking: "Top 20"
     },
-    image: "/images/Trinity college.jfif"
+    image: "/images/Trinity college.jpg"
   }
 ]
 

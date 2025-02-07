@@ -146,13 +146,18 @@ export function EligibilityApplicationForm({ form, onClose }: EligibilityApplica
             currentSection.fields.find((f) => f.id === fieldId) ||
             form.sections.flatMap((s) => s.fields).find((f) => f.id === fieldId)
           if (field) {
-            acc[field.label] = formData[fieldId]
+            if (field.type === 'radio' && formData[fieldId] === 'other') {
+              // Use the custom input value instead of "other"
+              acc[field.label] = formData[`${field.id}_other`] || 'other'
+            } else {
+              acc[field.label] = formData[fieldId]
+            }
           }
           return acc
         },
-        {} as Record<string, any>,
+        {} as Record<string, any>
       )
-
+  
       const response = await fetch("/api/proxy-eligibility-application", {
         method: "POST",
         headers: {
@@ -163,11 +168,11 @@ export function EligibilityApplicationForm({ form, onClose }: EligibilityApplica
           formData: formattedFormData,
         }),
       })
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-
+  
       const data = await response.json()
       setSubmissionStatus("success")
       setSubmissionMessage(form.settings?.successMessage || "Eligibility Application Submitted Successfully!")
@@ -179,13 +184,15 @@ export function EligibilityApplicationForm({ form, onClose }: EligibilityApplica
       setIsLoading(false)
     }
   }
+  
 
   const renderField = (field: FormField) => {
-    const value = formData[field.id] || ""
-    const error = formErrors[field.id]
+    const value = formData[field.id] || "";
+    const otherValue = formData[`${field.id}_other`] || "";
+    const error = formErrors[field.id];
     const fieldProps = {
       "data-has-error": error ? "true" : "false",
-    }
+    };
 
     switch (field.type) {
       case "text":
@@ -273,28 +280,49 @@ export function EligibilityApplicationForm({ form, onClose }: EligibilityApplica
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
         )
-      case "radio":
-        return (
-          <div className="space-y-2" {...fieldProps}>
-            <div className="flex flex-col space-y-2">
-              {field.options?.map((option) => (
-                <div key={option} className="flex items-center space-x-2">
+        case "radio":
+          return (
+            <div className="space-y-2" {...fieldProps}>
+              <div className="flex flex-col space-y-2">
+                {field.options?.map((option) => (
+                  <div key={option} className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id={`${field.id}-${option}`}
+                      name={field.id}
+                      value={option}
+                      checked={value === option}
+                      onChange={() => handleFieldChange(field.id, option)}
+                      className="form-radio"
+                    />
+                    <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
+                  </div>
+                ))}
+                <div className="flex items-center space-x-2">
                   <input
                     type="radio"
-                    id={`${field.id}-${option}`}
+                    id={`${field.id}-other`}
                     name={field.id}
-                    value={option}
-                    checked={value === option}
-                    onChange={() => handleFieldChange(field.id, option)}
+                    value="other"
+                    checked={value === "other" || Boolean(otherValue)}
+                    onChange={() => handleFieldChange(field.id, "other")}
                     className="form-radio"
                   />
-                  <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
+                  <Label htmlFor={`${field.id}-other`}>Other</Label>
                 </div>
-              ))}
+                {(value === "other" || Boolean(otherValue)) && (
+                  <Input
+                    type="text"
+                    placeholder="Please specify"
+                    value={otherValue}
+                    onChange={(e) => handleFieldChange(`${field.id}_other`, e.target.value)}
+                    className="mt-2"
+                  />
+                )}
+              </div>
+              {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-          </div>
-        )
+          );
       default:
         return null
     }

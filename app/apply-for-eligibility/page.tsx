@@ -99,7 +99,7 @@ export default function ApplyForEligibility() {
                     transition={{ duration: 0.5 }}
                 >
                     <iframe
-                        src="https://docs.google.com/forms/d/e/1FAIpQLScuYgrKK4rC46JKBAt77BeCwVXcD4AMSBshV3UFSiQnQBh6IA/viewform?pli=1?embedded=true"
+                        src="https://docs.google.com/forms/d/e/1FAIpQLScuYgrKK4rC46JKBAt77BeCwVXcD4AMSBshV3UFSiQnQBh6IA/viewform?pli=1?embedded=false"
                         className="w-full h-[90vh] min-h-screen"
                         style={{ border: 0 }}
                     >
