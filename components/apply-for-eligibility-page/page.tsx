@@ -298,31 +298,38 @@ export function EligibilityApplicationForm({ form, onClose }: EligibilityApplica
                     <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
                   </div>
                 ))}
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id={`${field.id}-other`}
-                    name={field.id}
-                    value="other"
-                    checked={value === "other" || Boolean(otherValue)}
-                    onChange={() => handleFieldChange(field.id, "other")}
-                    className="form-radio"
-                  />
-                  <Label htmlFor={`${field.id}-other`}>Other</Label>
-                </div>
-                {(value === "other" || Boolean(otherValue)) && (
-                  <Input
-                    type="text"
-                    placeholder="Please specify"
-                    value={otherValue}
-                    onChange={(e) => handleFieldChange(`${field.id}_other`, e.target.value)}
-                    className="mt-2"
-                  />
+                {field.options && field.options.length > 2 && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id={`${field.id}-other`}
+                        name={field.id}
+                        value="other"
+                        checked={value === "other" || Boolean(otherValue)}
+                        onChange={() => handleFieldChange(field.id, "other")}
+                        className="form-radio"
+                      />
+                      <Label htmlFor={`${field.id}-other`}>Other</Label>
+                    </div>
+                    {(value === "other" || Boolean(otherValue)) && (
+                      <Input
+                        type="text"
+                        placeholder="Please specify"
+                        value={otherValue}
+                        onChange={(e) =>
+                          handleFieldChange(`${field.id}_other`, e.target.value)
+                        }
+                        className="mt-2"
+                      />
+                    )}
+                  </>
                 )}
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
           );
+        
       default:
         return null
     }
