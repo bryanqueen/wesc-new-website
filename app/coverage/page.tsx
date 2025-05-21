@@ -5,7 +5,8 @@ import { useState } from "react"
 import {
     Users,
     Building2,
-    ChevronRight
+    ChevronRight,
+    Globe
 } from "lucide-react"
 import Image from "next/image"
 import CountryModal from "@/components/coveragepage/country-modal"
@@ -274,9 +275,46 @@ const markets = [
     }
 ];
 
-export default function MarketsPage() {
-    const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+// Additional 27 countries (total 37 destinations)
+const additionalCountries = [
+    "Belgium", "Brazil", "Bulgaria", "China", "Croatia", 
+    "Czech Republic", "Denmark", "Finland", "Grenada", "Hong Kong", 
+    "Hungary", "India", "Israel", "Italy", "Latvia", 
+    "Malaysia", "Malta", "Mauritius", "Mexico", "Philippines", 
+    "Poland", "Russia", "Scotland", "South Africa", "Spain", 
+    "Sweden", "Switzerland", "UAE"
+];
 
+// Group countries by region for visual organization
+const regions = {
+    "Europe": [
+        "Belgium", "Bulgaria", "Croatia", "Czech Republic", "Denmark", 
+        "Finland", "Hungary", "Italy", "Latvia", "Malta", 
+        "Poland", "Russia", "Scotland", "Spain", "Sweden", "Switzerland"
+    ],
+    "Asia & Middle East": [
+        "China", "Hong Kong", "India", "Israel", "Malaysia", 
+        "Philippines", "UAE"
+    ],
+    "Americas": [
+        "Brazil", "Grenada", "Mexico"
+    ],
+    "Africa & Indian Ocean": [
+        "Mauritius", "South Africa"
+    ]
+};
+
+export default function MarketsPage() {
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+    const [expandedRegion, setExpandedRegion] = useState<string | null>(null);
+    
+    const toggleRegion = (region: string) => {
+        if (expandedRegion === region) {
+            setExpandedRegion(null);
+        } else {
+            setExpandedRegion(region);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -297,14 +335,21 @@ export default function MarketsPage() {
                         Global Education Coverage
                     </motion.h1>
                     <p className="text-xl max-w-2xl mx-auto text-white/90">
-                        Your gateway to world-class education across 10 leading destinations
+                        Your gateway to world-class education across <span className="font-bold">37 leading destinations</span>
                     </p>
                 </div>
             </section>
 
-            {/* Markets Grid */}
+            {/* Featured Markets Grid */}
             <section className="py-24">
                 <div className="container px-6 mx-auto">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl font-bold mb-4">Featured Destinations</h2>
+                        <p className="text-[--muted] max-w-2xl mx-auto">
+                            Explore our most popular study destinations with comprehensive information on education systems, costs, and opportunities.
+                        </p>
+                    </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {markets.map((market, index) => (
                             <motion.div
@@ -327,7 +372,6 @@ export default function MarketsPage() {
                                                 duration: 0.8,
                                                 delay: 0.2
                                             }}
-                                            // viewport={{ once: true }}
                                             className="absolute inset-0"
                                         >
                                             <Image
@@ -365,6 +409,84 @@ export default function MarketsPage() {
                                 </div>
                             </motion.div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Global Reach Section - Interactive World Map */}
+            <section className="py-20 bg-gradient-to-b from-white to-gray-100">
+                <div className="container px-6 mx-auto">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-16"
+                    >
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                            <Globe className="w-8 h-8 text-[--primary]" />
+                            <h2 className="text-3xl font-bold">Our Global Reach</h2>
+                        </div>
+                        <p className="text-[--muted] max-w-2xl mx-auto">
+                            Beyond our featured destinations, we offer expert guidance on education 
+                            opportunities across 37 countries worldwide, organized by region.
+                        </p>
+                    </motion.div>
+
+                    <div className="rounded-3xl bg-white shadow-xl overflow-hidden max-w-5xl mx-auto">
+                        {/* Region accordions */}
+                        <div className="divide-y divide-gray-100">
+                            {Object.entries(regions).map(([region, countries], index) => (
+                                <motion.div 
+                                    key={region}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    viewport={{ once: true }}
+                                    className="overflow-hidden"
+                                >
+                                    <button 
+                                        onClick={() => toggleRegion(region)}
+                                        className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
+                                    >
+                                        <h3 className="text-xl font-semibold">{region}</h3>
+                                        <ChevronRight 
+                                            className={`w-5 h-5 text-[--primary] transition-transform ${
+                                                expandedRegion === region ? 'rotate-90' : ''
+                                            }`} 
+                                        />
+                                    </button>
+                                    
+                                    {expandedRegion === region && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="px-6 pb-6"
+                                        >
+                                            <div className="flex flex-wrap gap-3">
+                                                {countries.map(country => (
+                                                    <motion.div
+                                                        key={country}
+                                                        initial={{ scale: 0.9, opacity: 0 }}
+                                                        animate={{ scale: 1, opacity: 1 }}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                                        className="bg-gray-50 hover:bg-[--primary]/10 text-[--muted] hover:text-[--primary] px-4 py-2 rounded-full cursor-pointer transition-colors"
+                                                        onClick={() => {
+                                                            // For now just close the accordion, but you could show a coming soon modal
+                                                            setExpandedRegion(null);
+                                                        }}
+                                                    >
+                                                        {country}
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
