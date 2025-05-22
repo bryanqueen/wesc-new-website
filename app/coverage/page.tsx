@@ -275,15 +275,6 @@ const markets = [
     }
 ];
 
-// Additional 27 countries (total 37 destinations)
-const additionalCountries = [
-    "Belgium", "Brazil", "Bulgaria", "China", "Croatia", 
-    "Czech Republic", "Denmark", "Finland", "Grenada", "Hong Kong", 
-    "Hungary", "India", "Israel", "Italy", "Latvia", 
-    "Malaysia", "Malta", "Mauritius", "Mexico", "Philippines", 
-    "Poland", "Russia", "Scotland", "South Africa", "Spain", 
-    "Sweden", "Switzerland", "UAE"
-];
 
 // Group countries by region for visual organization
 const regions = {
@@ -294,7 +285,7 @@ const regions = {
     ],
     "Asia & Middle East": [
         "China", "Hong Kong", "India", "Israel", "Malaysia", 
-        "Philippines", "UAE"
+        "Philippines", "UAE", "South Korea"
     ],
     "Americas": [
         "Brazil", "Grenada", "Mexico"

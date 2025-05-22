@@ -43,7 +43,7 @@ const useCountAnimation = (end: number, duration: number = 2000, delay: number =
 export function About() {
   // Using the custom hook for each number
   const [collegeCount, collegeRef] = useCountAnimation(2500)
-  const [countryCount, countryRef] = useCountAnimation(37)
+  const [countryCount, countryRef] = useCountAnimation(38)
   const [clientCount, clientRef] = useCountAnimation(1567)
 
   return (
