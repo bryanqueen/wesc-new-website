@@ -118,7 +118,7 @@ export default function BlogViewer({
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: index * 0.1 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-lg leading-relaxed mb-6 text-gray-700"
                         key={index}
                     >
