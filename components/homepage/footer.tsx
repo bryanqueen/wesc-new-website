@@ -71,17 +71,29 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-8 pt-4 border-t border-white/10 text-sm text-center relative z-10">
-          <p>© {new Date().getFullYear()} WESC. All rights reserved.</p>
+        {/* Legal Links */}
+        <div className="mt-8 pt-4 border-t border-white/10 relative z-10">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm mb-4">
+            <Link href="/privacy-policy" className="hover:text-[--accent] transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/cookie-policy" className="hover:text-[--accent] transition-colors">
+              Cookie Policy
+            </Link>
+            <Link href="/terms-of-use" className="hover:text-[--accent] transition-colors">
+              Terms of Use
+            </Link>
+          </div>
+          <p className="text-sm text-center">© {new Date().getFullYear()} WESC. All rights reserved.</p>
         </div>
 
-        {/* Large Background Text */}
-        <div className="overflow-hidden pointer-events-none select-none">
-          <h2 className="pb-4 font-bold text-white/60 text-center text-[33vw] md:text-[35vw] leading-[0.8] mt-10">
-            WESC
-          </h2>
-        </div>
+      </div>
+
+      {/* Large Background Text - Outside container to prevent cutoff */}
+      <div className="overflow-hidden pointer-events-none select-none w-full">
+        <h2 className="pb-4 font-bold text-white/60 text-center text-[33vw] md:text-[35vw] leading-[0.8] mt-10">
+          WESC
+        </h2>
       </div>
     </footer>
   )

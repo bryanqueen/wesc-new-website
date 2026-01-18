@@ -4,6 +4,7 @@ import {Space_Grotesk} from "next/font/google"
 import "./globals.css";
 import { Navbar } from "@/components/homepage/navbar";
 import { Footer } from "@/components/homepage/footer";
+import { CookieConsent } from "@/components/ui/cookie-consent";
 
 
 const spaceGrotesk = Space_Grotesk({
@@ -57,6 +58,7 @@ export default function RootLayout({
         <Navbar/>
         {children}
         <Footer/>
+        <CookieConsent/>
       </body>
     </html>
   );
